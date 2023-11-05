@@ -18,7 +18,9 @@ fun main() {
 }
 
 class ChessGameApplication : Application() {
-    private val gameEngine = SimpleGameEngine()
+//    private val gameEngine = SimpleGameEngine()
+    val adapter = Adapter()
+//    private val gameEngine = adapter.init()
     private val imageResolver = CachedImageResolver(DefaultImageResolver())
 
     companion object {
@@ -27,10 +29,8 @@ class ChessGameApplication : Application() {
 
     override fun start(primaryStage: Stage) {
         primaryStage.title = GameTitle
-
-        val root = GameView(gameEngine, imageResolver)
+        val root = GameView(adapter, imageResolver)
         primaryStage.scene = Scene(root)
-
         primaryStage.show()
     }
 }
