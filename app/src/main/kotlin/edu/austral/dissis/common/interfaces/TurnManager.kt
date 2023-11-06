@@ -5,5 +5,12 @@ import edu.austral.dissis.common.Movement
 
 interface TurnManager {
 
-    fun manageTurn(gameState: Game, movement: Movement){}
+
+
+    fun newGame(): Game
+
+    fun returnTurnManager() : TurnManager
+
+    fun validateMovement(gameState: Game, movement: Movement):Boolean
+
 }

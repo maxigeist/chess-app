@@ -4,10 +4,13 @@ import edu.austral.dissis.common.Board
 import edu.austral.dissis.common.Game
 import edu.austral.dissis.common.Movement
 import edu.austral.dissis.chess.entities.ChessPieceName
+import edu.austral.dissis.common.interfaces.Result
 import edu.austral.dissis.common.interfaces.Validator
+import edu.austral.dissis.common.results.InvalidResult
+import edu.austral.dissis.common.results.ValidResult
 
 class CheckValidator: Validator {
-    override fun validateMovement(movement: Movement?, gameState: Game?): Boolean {
+    override fun validateMovement(movement: Movement?, gameState: Game?): Result {
         val newBoard = gameState?.getBoard()?.move(movement!!)
         val invertedBoard = newBoard?.getInvertedBoardMap()
         val invertedBoardKeys = newBoard?.getInvertedBoardMap()?.keys
@@ -25,17 +28,16 @@ class CheckValidator: Validator {
                 if(kingPosition!=null){
                     if (enemyPieces != null) {
                         for(piece in enemyPieces){
-                            if(newGameState.validateMovement(Movement(invertedBoard[piece]!!, kingPosition))){
-//                                throw Exception("You are in check")
-                                return false
+                            if(newGameState.validateMovement(Movement(invertedBoard[piece]!!, kingPosition)) is ValidResult){
+                                return InvalidResult("You are in check")
                             }
                         }
                     }
-                    return true
+                    return ValidResult("The movement is valid")
                 }
-                return false
+                return InvalidResult("The movement is invalid")
             }
         }
-        return true
+        return ValidResult("The movement is valid")
     }
 }

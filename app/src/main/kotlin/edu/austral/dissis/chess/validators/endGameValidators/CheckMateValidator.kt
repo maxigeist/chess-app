@@ -5,7 +5,7 @@ import edu.austral.dissis.common.Movement
 import edu.austral.dissis.chess.entities.ChessPieceName
 import edu.austral.dissis.common.Position
 import edu.austral.dissis.common.interfaces.EndGameValidator
-
+import edu.austral.dissis.common.results.ValidResult
 
 
 class CheckMateValidator: EndGameValidator {
@@ -20,7 +20,7 @@ class CheckMateValidator: EndGameValidator {
                     for (i in 1..gameState.getBoard().getXDimension()) {
                         for (j in 1..gameState.getBoard().getYDimension()) {
                             val move = Movement(invertedBoard[piece]!!, Position(i,j))
-                            if(gameState.validateMovement(move)){
+                            if(gameState.validateMovement(move) is ValidResult){
                                 return false
                             }
                         }

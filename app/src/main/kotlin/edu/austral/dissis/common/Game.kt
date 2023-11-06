@@ -1,7 +1,14 @@
 package edu.austral.dissis.common
 
+import edu.austral.dissis.common.game_results.EndGameResult
+import edu.austral.dissis.common.game_results.InvalidGameResult
+import edu.austral.dissis.common.game_results.ValidGameResult
 import edu.austral.dissis.common.interfaces.Validator
 import edu.austral.dissis.common.interfaces.EndGameValidator
+import edu.austral.dissis.common.interfaces.GameResult
+import edu.austral.dissis.common.interfaces.Result
+import edu.austral.dissis.common.results.InvalidResult
+import edu.austral.dissis.common.results.ValidResult
 
 
 class Game(
@@ -37,15 +44,30 @@ class Game(
         return currentTeam
     }
 
-    fun move(from: Position, to: Position): Game {
+    fun move(from: Position, to: Position): GameResult {
         val movement = Movement(from, to)
-        if(!validateMovement(movement)){
-            throw Exception("Invalid movement")
+        when (val movementValidation = validateMovement(movement)) {
+            is InvalidResult -> {
+                return InvalidGameResult(movementValidation.getMessage())
+            }
+            else -> {
+                val boards = moves.toList() + board
+                val newGame = Game(
+                    boards,
+                    gameValidators,
+                    endGameValidators,
+                    board.move(movement),
+                    rules,
+                    currentTeam = opposite()
+                )
+                if (newGame.checkEndGameValidators()){
+                    return EndGameResult()
+                }
+                return ValidGameResult(newGame)
+            }
         }
-
-        val boards = moves.toList() + board
-        return Game(boards, gameValidators, endGameValidators, board.move(movement), rules, currentTeam = opposite())
     }
+
 
     fun checkEndGameValidators(): Boolean{
         for (validator in endGameValidators){
@@ -61,24 +83,29 @@ class Game(
         return if (currentTeam == Color.WHITE) Color.BLACK else Color.WHITE
     }
 
-    fun validateMovement(movement: Movement): Boolean{
-        return (validatePieceRule(movement)
-                && validateGameValidators(movement))
+    fun validateMovement(movement: Movement): Result {
+        val gameValidatorsResult = validateGameValidators(movement)
+        val pieceRuleResult = validatePieceRule(movement)
+        return when {
+            gameValidatorsResult is InvalidResult -> gameValidatorsResult
+            pieceRuleResult is InvalidResult -> pieceRuleResult
+            else -> ValidResult("The movement is valid")
+        }
     }
 
-    fun validateGameValidators(movement: Movement): Boolean {
+    fun validateGameValidators(movement: Movement): Result {
         for (validator in gameValidators) {
-            if (!validator.validateMovement(movement, this)) {
-                return false
+            val validation = validator.validateMovement(movement, this)
+            if (validation !is ValidResult) {
+                return validator.validateMovement(movement, this)
             }
         }
-        return true
+        return ValidResult("The movement is valid")
     }
 
-    fun validatePieceRule(movement: Movement):Boolean{
+    fun validatePieceRule(movement: Movement):Result{
         val piece = this.board.getBoardMap()[movement.getFrom()]
         val pieceRule = rules[piece]
         return pieceRule?.validateMovement(movement, this)!!
     }
-
 }

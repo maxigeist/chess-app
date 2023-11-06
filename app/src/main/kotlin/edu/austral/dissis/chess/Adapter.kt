@@ -12,6 +12,9 @@ import edu.austral.dissis.common.validators.VerticalObstacleValidator
 import edu.austral.dissis.common.validators.LimitedQuantityValidator
 import edu.austral.dissis.chess.entities.ChessPieceName
 import edu.austral.dissis.common.*
+import edu.austral.dissis.common.game_results.EndGameResult
+import edu.austral.dissis.common.game_results.InvalidGameResult
+import edu.austral.dissis.common.game_results.ValidGameResult
 import edu.austral.dissis.common.validators.*
 
 
@@ -20,21 +23,22 @@ class Adapter(): GameEngine{
     var gameState = classicChess()
 
 
-    //Hay que repensar esto
     override fun applyMove(move: Move): MoveResult {
-        try{
-            val newGame = gameState.move(
-                edu.austral.dissis.common.Position(move.from.column, move.from.row),
-                edu.austral.dissis.common.Position(move.to.column, move.to.row)
-            )
-            if(newGame.checkEndGameValidators()){
-                val color =  newGame.opposite()
-                return GameOver(getColor(color))
+        when (val movementResult = gameState.move(edu.austral.dissis.common.Position(move.from.column, move.from.row),
+            edu.austral.dissis.common.Position(move.to.column, move.to.row))){
+            is InvalidGameResult -> {
+                return InvalidMove(movementResult.getMessage())
             }
-            gameState = newGame
-            return NewGameState(convertUiPieces(newGame.getBoard().getBoardMap()), getColor(newGame.getCurrentTeam()))
-        }catch (e:Exception){
-            return InvalidMove(e.message ?: "Invalid move")
+            is ValidGameResult ->{
+                gameState = movementResult.getGame()
+                return NewGameState(convertUiPieces(movementResult.getGame().getBoard().getBoardMap()), getColor(movementResult.getGame().getCurrentTeam()))
+            }
+            is EndGameResult ->{
+                return GameOver(getColor(gameState.getCurrentTeam()))
+            }
+            else -> {
+                return InvalidMove("Invalid move")
+            }
         }
     }
 
@@ -136,7 +140,7 @@ class Adapter(): GameEngine{
                     HorizontalOrientationValidator(),
                     LimitedQuantityValidator(1),
                 )
-                ), AndRuleValidator(
+            ),AndRuleValidator(
                     listOf(
                         VerticalOrientationValidator(),
                         LimitedQuantityValidator(1),

@@ -1,14 +1,5 @@
 package edu.austral.dissis.checkers.validators
 
-import edu.austral.dissis.common.Board
-import edu.austral.dissis.common.Game
-import edu.austral.dissis.common.Movement
-import edu.austral.dissis.common.Position
-import edu.austral.dissis.common.interfaces.NewBoardValidator
-import edu.austral.dissis.common.validators.DiagonalOrientationValidator
-import edu.austral.dissis.common.validators.EmptySquareValidator
-import edu.austral.dissis.common.validators.EvenQuantityValidator
-
 
 //class PawnEatValidator : NewBoardValidator{
 //    override fun validateMovement(movement: Movement?, gameState: Game?): Board {
