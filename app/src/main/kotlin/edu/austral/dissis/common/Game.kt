@@ -3,10 +3,7 @@ package edu.austral.dissis.common
 import edu.austral.dissis.common.game_results.EndGameResult
 import edu.austral.dissis.common.game_results.InvalidGameResult
 import edu.austral.dissis.common.game_results.ValidGameResult
-import edu.austral.dissis.common.interfaces.Validator
-import edu.austral.dissis.common.interfaces.EndGameValidator
-import edu.austral.dissis.common.interfaces.GameResult
-import edu.austral.dissis.common.interfaces.Result
+import edu.austral.dissis.common.interfaces.*
 import edu.austral.dissis.common.results.InvalidResult
 import edu.austral.dissis.common.results.ValidResult
 
@@ -16,9 +13,11 @@ class Game(
     private val gameValidators: List<Validator>,
     private val endGameValidators : List<EndGameValidator>,
     private val board: Board,
+    private val executioner: Executioner,
     private val rules: Map<Piece, Validator>,
+    private val complexMovement: List<ComplexMovement>,
     private val currentTeam: Color = Color.WHITE,
-
+    private val turnManager: TurnManager
 )  {
 
     fun getEndGameValidators():List<EndGameValidator>{
@@ -44,6 +43,18 @@ class Game(
         return currentTeam
     }
 
+    fun getComplexMovement(): List<ComplexMovement> {
+        return complexMovement
+    }
+
+    fun getTurnManager(): TurnManager {
+        return turnManager
+    }
+
+    fun getExecutioner(): Executioner {
+        return executioner
+    }
+
     fun move(from: Position, to: Position): GameResult {
         val movement = Movement(from, to)
         when (val movementValidation = validateMovement(movement)) {
@@ -51,19 +62,7 @@ class Game(
                 return InvalidGameResult(movementValidation.getMessage())
             }
             else -> {
-                val boards = moves.toList() + board
-                val newGame = Game(
-                    boards,
-                    gameValidators,
-                    endGameValidators,
-                    board.move(movement),
-                    rules,
-                    currentTeam = opposite()
-                )
-                if (newGame.checkEndGameValidators()){
-                    return EndGameResult()
-                }
-                return ValidGameResult(newGame)
+                return executioner.getNewGame(movement, this)
             }
         }
     }
@@ -77,6 +76,11 @@ class Game(
         }
         return false
     }
+
+    fun ManageTurnManager(){
+
+    }
+
 
 
     fun opposite(): Color {
@@ -105,7 +109,16 @@ class Game(
 
     fun validatePieceRule(movement: Movement):Result{
         val piece = this.board.getBoardMap()[movement.getFrom()]
-        val pieceRule = rules[piece]
-        return pieceRule?.validateMovement(movement, this)!!
+        val pieceRule = rules[piece] ?: return InvalidResult("The movement is invalid")
+        return pieceRule.validateMovement(movement, this)
+    }
+
+
+    fun copy(moves: List<Board> = this.moves, gameValidators: List<Validator> = this.gameValidators,
+        endGameValidators: List<EndGameValidator> = this.endGameValidators, board: Board = this.board,
+        executioner: Executioner = this.executioner, rules: Map<Piece, Validator> = this.rules,
+        complexMovement: List<ComplexMovement> = this.complexMovement, currentTeam: Color = this.currentTeam,
+        turnManager: TurnManager = this.turnManager): Game {
+        return Game(moves, gameValidators, endGameValidators, board, executioner, rules, complexMovement, currentTeam, turnManager)
     }
 }

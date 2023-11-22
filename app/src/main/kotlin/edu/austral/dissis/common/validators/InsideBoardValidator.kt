@@ -11,7 +11,8 @@ import edu.austral.dissis.common.results.ValidResult
 class InsideBoardValidator: Validator {
 
     override fun validateMovement(movement: Movement?, gameState: Game?): Result {
-        return if(movement?.getTo()?.getXCoordinate()!! <= gameState?.getBoard()?.getXDimension()!! && movement.getTo().getYCoordinate() <= gameState.getBoard().getYDimension()){
+        return if(movement?.getTo()?.getXCoordinate()!! <= gameState?.getBoard()?.getXDimension()!! && movement.getTo().getXCoordinate() >= 1
+            && 1<= movement.getTo().getYCoordinate() && movement.getTo().getYCoordinate() <= gameState.getBoard().getYDimension()){
             ValidResult("The movement is valid")
         } else{
             InvalidResult("The movement is invalid")

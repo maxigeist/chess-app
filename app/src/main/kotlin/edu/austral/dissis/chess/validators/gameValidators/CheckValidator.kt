@@ -24,7 +24,7 @@ class CheckValidator: Validator {
                 auxMoves.add(newBoard)
                 val newMoves = ArrayList<Board>()
                 newMoves.addAll(auxMoves)
-                val newGameState = Game(newMoves, gameState.gameValidators().filter { it !is CheckValidator }, gameState.getEndGameValidators(),newBoard ,gameState.getRules(), gameState.opposite())
+                val newGameState = Game(newMoves, gameState.gameValidators().filter { it !is CheckValidator }, gameState.getEndGameValidators(),newBoard , gameState.getExecutioner(),gameState.getRules(), gameState.getComplexMovement(),gameState.opposite(), gameState.getTurnManager())
                 if(kingPosition!=null){
                     if (enemyPieces != null) {
                         for(piece in enemyPieces){

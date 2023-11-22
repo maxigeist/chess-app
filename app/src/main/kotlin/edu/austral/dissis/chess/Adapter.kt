@@ -1,5 +1,8 @@
 package edu.austral.dissis.chess
 
+import edu.austral.dissis.checkers.Executioner
+import edu.austral.dissis.chess.complex_moves.CastlingMove
+import edu.austral.dissis.chess.complex_moves.PawnPromotion
 import edu.austral.dissis.chess.gui.*
 import edu.austral.dissis.chess.gui.Position
 import edu.austral.dissis.chess.validators.endGameValidators.CheckMateValidator
@@ -11,10 +14,12 @@ import edu.austral.dissis.common.validators.HorizontalObstacleValidator
 import edu.austral.dissis.common.validators.VerticalObstacleValidator
 import edu.austral.dissis.common.validators.LimitedQuantityValidator
 import edu.austral.dissis.chess.entities.ChessPieceName
+import edu.austral.dissis.chess.turn_manager.ClassicChessTurnManager
 import edu.austral.dissis.common.*
 import edu.austral.dissis.common.game_results.EndGameResult
 import edu.austral.dissis.common.game_results.InvalidGameResult
 import edu.austral.dissis.common.game_results.ValidGameResult
+import edu.austral.dissis.common.interfaces.ComplexMovement
 import edu.austral.dissis.common.validators.*
 
 
@@ -78,6 +83,8 @@ class Adapter(): GameEngine{
         val gameBoard: MutableMap<edu.austral.dissis.common.Position?, Piece?> = HashMap()
         val board = Board(8, 8, gameBoard)
         val gameValidators: MutableList<Validator> = ArrayList()
+        val complexMoves: MutableList<ComplexMovement> = ArrayList()
+        val normalTurnManager = ClassicChessTurnManager()
         val endGameValidators : MutableList<EndGameValidator> = ArrayList()
         val ruleValidators : MutableMap<Piece, Validator> = HashMap()
         val insideBoardValidator = InsideBoardValidator()
@@ -85,6 +92,9 @@ class Adapter(): GameEngine{
         val currentTurnValidator = CurrentTurnValidator()
         val checkValidator = CheckValidator()
         val checkMateValidator = CheckMateValidator()
+        val pawnPromotion = PawnPromotion()
+        val castling = CastlingMove()
+        val executioner = Executioner()
         val positionObstacleTeamValidator = PositionObstacleTeamValidator()
         gameValidators.add(insideBoardValidator)
         gameValidators.add(makeAMoveValidator)
@@ -99,7 +109,9 @@ class Adapter(): GameEngine{
         uploadRookRule(ruleValidators)
         knightRule(ruleValidators)
         uploadClassicPieces(gameBoard)
-        return Game(ArrayList<Board>(),gameValidators, endGameValidators, board, ruleValidators)
+        complexMoves.add(pawnPromotion)
+        complexMoves.add(castling)
+        return Game(ArrayList<Board>(),gameValidators, endGameValidators, board,executioner, ruleValidators, complexMoves,Color.WHITE, normalTurnManager )
     }
 
     fun pawnsKingsAndQueens(): Game {
@@ -107,12 +119,15 @@ class Adapter(): GameEngine{
         val board = Board(16, 16, gameBoard)
         val gameValidators: MutableList<Validator> = ArrayList()
         val endGameValidators : MutableList<EndGameValidator> = ArrayList()
+        val normalTurnManager = ClassicChessTurnManager()
+        val complexMoves: MutableList<ComplexMovement> = ArrayList()
         val ruleValidators : MutableMap<Piece, Validator> = HashMap()
         val insideBoardValidator = InsideBoardValidator()
         val makeAMoveValidator = MakeAMoveValidator()
         val currentTurnValidator = CurrentTurnValidator()
         val checkValidator = CheckValidator()
         val checkMateValidator = CheckMateValidator()
+        val executioner = Executioner()
         val positionObstacleTeamValidator = PositionObstacleTeamValidator()
         gameValidators.add(insideBoardValidator)
         gameValidators.add(makeAMoveValidator)
@@ -123,7 +138,7 @@ class Adapter(): GameEngine{
         uploadKingRule(ruleValidators)
         uploadQueenRule(ruleValidators)
         uploadPawnsKingsAndQueens(gameBoard)
-        return Game(ArrayList<Board>(),gameValidators, endGameValidators, board, ruleValidators)
+        return Game(ArrayList<Board>(),gameValidators, endGameValidators, board,executioner ,ruleValidators,complexMoves ,Color.WHITE, normalTurnManager)
     }
 
     fun uploadKingRule(ruleValidators: MutableMap<Piece, Validator>){
@@ -146,6 +161,13 @@ class Adapter(): GameEngine{
                         LimitedQuantityValidator(1),
                     )
                 )
+                , AndRuleValidator(
+                    listOf(
+                        HorizontalOrientationValidator(),
+                        FirstMoveValidator(),
+                        LimitedQuantityValidator(2)
+                    )
+                )
             )
         )
         ruleValidators[Piece(ChessPieceName.KING, Color.WHITE, 13)] = orRuleValidator
@@ -159,7 +181,7 @@ class Adapter(): GameEngine{
                 AndRuleValidator(
                     listOf(
                         DiagonalOrientationValidator(),
-                        DiagonalObstacleValidator(),
+                        DiagonalObstacleValidator(false),
                     )
                 )
                 ,AndRuleValidator(
@@ -227,7 +249,7 @@ class Adapter(): GameEngine{
                 AndRuleValidator(
                     listOf(
                         DiagonalOrientationValidator(),
-                        DiagonalObstacleValidator(),
+                        DiagonalObstacleValidator(false),
                     )
                 )
             )

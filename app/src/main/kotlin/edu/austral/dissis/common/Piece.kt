@@ -3,14 +3,14 @@ package edu.austral.dissis.common
 import edu.austral.dissis.chess.entities.ChessPieceName
 import java.util.Objects
 
-class Piece(private val chessPieceName: ChessPieceName, private val color: Color, private var id: Int) {
+class Piece(private val pieceName: Name, private val color: Color, private var id: Int) {
 
     fun getId(): Int {
         return id
     }
 
-    fun getName(): ChessPieceName {
-        return chessPieceName
+    fun getName(): Name {
+        return pieceName
     }
 
 
@@ -21,7 +21,7 @@ class Piece(private val chessPieceName: ChessPieceName, private val color: Color
 
     override fun toString(): String {
         return "Piece{" +
-                "name='" + chessPieceName + '\'' +
+                "name='" + pieceName.getName() + '\'' +
                 ", color='" + color + '\'' +
                 '}'
     }
@@ -31,7 +31,7 @@ class Piece(private val chessPieceName: ChessPieceName, private val color: Color
         if (this === other) return true
         if (other !is Piece) return false
 
-        if (chessPieceName != other.chessPieceName) return false
+        if (pieceName.getName() != other.pieceName.getName()) return false
         if (color != other.color) return false
         if(id != other.id) return false
 
@@ -40,6 +40,6 @@ class Piece(private val chessPieceName: ChessPieceName, private val color: Color
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(chessPieceName, color, id)
+        return Objects.hash(pieceName.getName(), color, id)
     }
 }

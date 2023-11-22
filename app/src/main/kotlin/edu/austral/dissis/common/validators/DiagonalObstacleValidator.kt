@@ -9,7 +9,7 @@ import edu.austral.dissis.common.results.InvalidResult
 import edu.austral.dissis.common.results.ValidResult
 import kotlin.math.abs
 
-class DiagonalObstacleValidator : Validator {
+class DiagonalObstacleValidator(private val wantObstacle:Boolean) : Validator {
     override fun validateMovement(movement: Movement?, gameState: Game?): Result {
         val (start, end) = if (movement?.getFrom()?.getXCoordinate()!! > movement.getTo().getXCoordinate()) {
             movement.getTo().getXCoordinate()+ 1 to movement.getFrom().getXCoordinate()
@@ -23,10 +23,16 @@ class DiagonalObstacleValidator : Validator {
         }
         for (i in start until end) {
             for (j in startY until endY) {
-                if ((gameState?.getBoard()?.getBoardMap()?.get(Position(i,j)) != null) && abs(i - movement.getTo().getXCoordinate()) == abs(j - movement.getTo().getYCoordinate()) ) {
+                if ((gameState?.getBoard()?.getBoardMap()?.get(Position(i,j)) != null) && abs(i - movement.getTo().getXCoordinate()) == abs(j - movement.getTo().getYCoordinate())) {
+                    if(wantObstacle){
+                        return ValidResult("The movement is valid")
+                    }
                     return InvalidResult("The movement is invalid")
                 }
             }
+        }
+        if (wantObstacle){
+            return InvalidResult("The movement is invalid")
         }
         return ValidResult("The movement is valid")
     }

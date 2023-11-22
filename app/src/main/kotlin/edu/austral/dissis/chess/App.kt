@@ -3,10 +3,8 @@
  */
 package edu.austral.dissis.chess
 
-import edu.austral.dissis.chess.gui.CachedImageResolver
-import edu.austral.dissis.chess.gui.DefaultImageResolver
-import edu.austral.dissis.chess.gui.GameView
-import edu.austral.dissis.chess.gui.SimpleGameEngine
+import edu.austral.dissis.checkers.CheckersAdapter
+import edu.austral.dissis.chess.gui.*
 import javafx.application.Application
 import javafx.application.Application.launch
 import javafx.scene.Scene
@@ -19,6 +17,7 @@ fun main() {
 
 class ChessGameApplication : Application() {
 //    private val gameEngine = SimpleGameEngine()
+
     val adapter = Adapter()
 //    private val gameEngine = adapter.init()
     private val imageResolver = CachedImageResolver(DefaultImageResolver())
@@ -29,7 +28,7 @@ class ChessGameApplication : Application() {
 
     override fun start(primaryStage: Stage) {
         primaryStage.title = GameTitle
-        val root = GameView(adapter, imageResolver)
+        val root = createGameViewFrom(adapter,imageResolver)
         primaryStage.scene = Scene(root)
         primaryStage.show()
     }

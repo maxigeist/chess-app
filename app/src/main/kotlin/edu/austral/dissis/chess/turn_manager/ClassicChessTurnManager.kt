@@ -18,5 +18,9 @@ class ClassicChessTurnManager : TurnManager {
         return true;
     }
 
+    override fun getHasEaten(): Boolean {
+        return false
+    }
+
 
 }

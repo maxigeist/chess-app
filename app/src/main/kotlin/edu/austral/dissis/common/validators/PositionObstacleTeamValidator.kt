@@ -11,7 +11,7 @@ class PositionObstacleTeamValidator: Validator {
         val pieceColor = gameState?.getBoard()?.getBoardMap()?.get(movement!!.getFrom())!!.getColor()
         if (gameState.getBoard().getBoardMap()[movement?.getTo()] != null ){
             if (gameState.getBoard().getBoardMap()[movement?.getTo()]!!.getColor() == pieceColor){
-                return InvalidResult("The movement is invalid")
+                return InvalidResult("There is a piece of the same team in the position")
             }
         }
         return ValidResult("The movement is valid")

@@ -4,22 +4,26 @@ import edu.austral.dissis.common.Game
 import edu.austral.dissis.common.Movement
 import edu.austral.dissis.common.interfaces.TurnManager
 
-
-class ClassicCheckersTurnManager(): TurnManager {
+class EatAgainTurnManager(private val PieceId: Int) : TurnManager {
     override fun newGame(): Game {
         TODO("Not yet implemented")
     }
 
-    override fun returnTurnManager() : ClassicCheckersTurnManager{
-        return this;
-
+    override fun returnTurnManager(): TurnManager {
+        TODO("Not yet implemented")
     }
+
     override fun validateMovement(gameState: Game, movement: Movement): Boolean {
-        return true;
+        TODO("Not yet implemented")
     }
 
     override fun getHasEaten(): Boolean {
-        return false
+        return true
     }
+
+    fun getPieceId(): Int {
+        return this.PieceId
+    }
+
 
 }
